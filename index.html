@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aflito — O Jogo da Porta Secreta</title>
+<meta name="description" content="Encontra a porta secreta antes que as tentativas se esgotem. Um jogo de adivinhação com dificuldade ajustável, feito em HTML, CSS e JavaScript." />
+<meta property="og:title" content="Aflito — O Jogo da Porta Secreta" />
+<meta property="og:description" content="Encontra a porta secreta antes que as tentativas se esgotem." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#0a0a0f" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%AA%3C/text%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">🚪</span>
+      <span class="brand-name">Aflito</span>
+    </div>
+    <div class="topbar-actions">
+      <button id="sound-toggle" class="icon-btn" type="button" aria-label="Som" title="Som">
+        <span id="sound-icon">🔊</span>
+      </button>
+      <button id="lang-toggle" class="lang-btn" type="button" aria-label="Mudar idioma">
+        <span class="flag" id="lang-flag">🇵🇹</span>
+        <span id="lang-label">PT</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="hero">
+      <p class="eyebrow" data-i18n="eyebrow">JOGO DE ADIVINHAÇÃO</p>
+      <h1 class="title">
+        <span class="title-line" data-i18n="title1">Encontra a</span>
+        <span class="title-line accent" data-i18n="title2">Porta Secreta</span>
+      </h1>
+      <p class="tagline" data-i18n="tagline">Escolhe um número. O jogo diz-te se a porta certa está mais acima ou mais abaixo. Tens tentativas limitadas — não as desperdices.</p>
+    </section>
+
+    <section class="difficulty-picker" id="difficulty-picker" role="radiogroup" aria-label="Dificuldade">
+      <button class="diff-btn" data-diff="easy" role="radio" aria-checked="false" type="button">
+        <span class="diff-name" data-i18n="diffEasy">Fácil</span>
+        <span class="diff-meta">1–50 · <span data-i18n="diffEasyTries">10 tentativas</span></span>
+      </button>
+      <button class="diff-btn is-active" data-diff="normal" role="radio" aria-checked="true" type="button">
+        <span class="diff-name" data-i18n="diffNormal">Normal</span>
+        <span class="diff-meta">1–100 · <span data-i18n="diffNormalTries">8 tentativas</span></span>
+      </button>
+      <button class="diff-btn" data-diff="hard" role="radio" aria-checked="false" type="button">
+        <span class="diff-name" data-i18n="diffHard">Difícil</span>
+        <span class="diff-meta">1–200 · <span data-i18n="diffHardTries">6 tentativas</span></span>
+      </button>
+    </section>
+
+    <section class="game-card" id="game-card">
+      <div class="game-card-glow"></div>
+
+      <div class="stat-row">
+        <div class="stat">
+          <span class="stat-label" data-i18n="attemptsLabel">Tentativas</span>
+          <div class="doors" id="doors-track" aria-hidden="true"></div>
+          <span class="stat-value"><span id="attempts-used">0</span>/<span id="attempts-max">8</span></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label" data-i18n="bestLabel">Melhor</span>
+          <span class="stat-value" id="best-value">—</span>
+        </div>
+      </div>
+
+      <div class="proximity" id="proximity" aria-hidden="true">
+        <div class="proximity-track">
+          <div class="proximity-fill" id="proximity-fill"></div>
+        </div>
+        <span class="proximity-label" id="proximity-label">&nbsp;</span>
+      </div>
+
+      <form id="guess-form" class="guess-form" autocomplete="off">
+        <div class="input-wrap">
+          <input
+            type="number"
+            id="guess-input"
+            inputmode="numeric"
+            placeholder="?"
+            aria-label="O teu palpite"
+          />
+          <span class="input-range" id="input-range">1–100</span>
+        </div>
+        <button type="submit" id="guess-btn" class="primary-btn" data-i18n="guessBtn">Adivinhar</button>
+      </form>
+
+      <p class="feedback" id="feedback" aria-live="polite">&nbsp;</p>
+
+      <div class="history-wrap">
+        <div class="history-head">
+          <span data-i18n="historyLabel">Histórico</span>
+          <button id="reset-btn" class="ghost-btn" type="button" data-i18n="newGameBtn">Novo Jogo</button>
+        </div>
+        <ol class="history" id="history-list"></ol>
+      </div>
+    </section>
+
+    <p class="hint-note" data-i18n="consoleHint">💡 Dica: abre a consola do navegador para veres pistas de desenvolvimento.</p>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      <span data-i18n="footerBy">Desenvolvido por</span>
+      <strong>David Arsénio Martins</strong>
+    </p>
+    <div class="footer-links">
+      <a href="https://ividi.dev/" target="_blank" rel="noopener noreferrer">ividi.dev</a>
+      <span class="dot">·</span>
+      <a href="https://github.com/VidiPT89/aflitoHD" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span class="dot">·</span>
+      <span data-i18n="footerLicense">Licença MIT</span>
+    </div>
+  </footer>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+  <canvas id="confetti-canvas"></canvas>
+  <div class="modal" id="modal">
+    <span class="modal-icon" id="modal-icon">🎉</span>
+    <h2 class="modal-title" id="modal-title">Título</h2>
+    <p class="modal-text" id="modal-text">Texto</p>
+    <div class="modal-stats" id="modal-stats"></div>
+    <div class="modal-actions">
+      <button class="primary-btn" id="modal-replay" type="button" data-i18n="playAgainBtn">Jogar Novamente</button>
+      <button class="ghost-btn" id="modal-close" type="button" data-i18n="closeBtn">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
