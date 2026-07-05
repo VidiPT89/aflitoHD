@@ -16,6 +16,8 @@ const TRANSLATIONS = {
     historyLabel: "Histórico",
     newGameBtn: "Novo Jogo",
     consoleHint: "💡 Dica: abre a consola do navegador para veres pistas de desenvolvimento.",
+    splashTagline: "A abrir a porta secreta",
+    splashSkip: "toca para continuar",
     footerBy: "Desenvolvido por",
     playAgainBtn: "Jogar Novamente",
     closeBtn: "Fechar",
@@ -58,6 +60,8 @@ const TRANSLATIONS = {
     historyLabel: "History",
     newGameBtn: "New Game",
     consoleHint: "💡 Tip: open the browser console for developer hints.",
+    splashTagline: "Opening the secret door",
+    splashSkip: "tap to continue",
     footerBy: "Developed by",
     playAgainBtn: "Play Again",
     closeBtn: "Close",
@@ -539,6 +543,26 @@ function bgTick() {
   requestAnimationFrame(bgTick);
 }
 bgTick();
+
+/* ---------------- Splash screen ---------------- */
+const splash = el("splash");
+
+function dismissSplash() {
+  if (splash.classList.contains("is-hidden")) return;
+  splash.classList.add("is-hidden");
+  document.body.classList.remove("no-scroll");
+  window.removeEventListener("keydown", onSplashKey);
+  setTimeout(() => splash.remove(), 650);
+}
+
+function onSplashKey(e) {
+  if (e.key === "Enter" || e.key === " " || e.key === "Escape") dismissSplash();
+}
+
+document.body.classList.add("no-scroll");
+splash.addEventListener("click", dismissSplash);
+window.addEventListener("keydown", onSplashKey);
+setTimeout(dismissSplash, 2800);
 
 /* ---------------- Init ---------------- */
 el("sound-icon").textContent = state.soundOn ? "🔊" : "🔇";
